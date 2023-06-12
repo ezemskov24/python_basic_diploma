@@ -1,5 +1,5 @@
 import datetime
-import handlers.custom_handlers.lowprice
+import handlers.custom_handlers.main_commands
 
 from loader import bot
 from states.states_info import FindInfoState
@@ -9,6 +9,14 @@ from telebot.types import CallbackQuery
 
 calendar = Calendar()
 calendar_callback = CallbackData("calendar", "action", "year", "month", "day")
+
+
+def check_month_day(number: str) -> str:
+
+    numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    if int(number) in numbers:
+        number = '0' + number
+    return number
 
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith(calendar_callback.prefix))
@@ -33,24 +41,20 @@ def input_date(call: CallbackQuery) -> None:
                 if int(select_date) > checkin:
 
                     data['checkOutDate'] = {'day': day, 'month': month, 'year': year}
+                    bot.send_message(call.message.chat.id, f'Дата выезда: {day + "." + month + "." + year}')
+                    bot.set_state(call.message.chat.id, FindInfoState.hotel_count)
+                    handlers.custom_handlers.main_commands.get_hotel_count(call)
 
                 else:
                     bot.send_message(call.message.chat.id, 'Дата выезда не может быть раньше даты заезда! '
                                                            'Повторите выбор даты!')
-                    handlers.custom_handlers.lowprice.my_calendar(call.message, 'выезда')
+                    handlers.custom_handlers.main_commands.my_calendar(call.message, 'выезда')
             else:
                 if int(select_date) >= int(now):
                     data['checkInDate'] = {'day': day, 'month': month, 'year': year}
-                    handlers.custom_handlers.lowprice.my_calendar(call.message, 'выезда')
+                    bot.send_message(call.message.chat.id, f'Дата заезда: {day + "." + month + "." + year}')
+                    handlers.custom_handlers.main_commands.my_calendar(call.message, 'выезда')
                 else:
                     bot.send_message(call.message.chat.id, 'Дата выезда не может быть раньше сегодняшней даты!'
                                                            'Повторите выбор даты!')
-                    handlers.custom_handlers.lowprice.my_calendar(call.message, 'заезда')
-
-
-def check_month_day(number: str) -> str:
-
-    numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-    if int(number) in numbers:
-        number = '0' + number
-    return number
+                    handlers.custom_handlers.main_commands.my_calendar(call.message, 'заезда')
