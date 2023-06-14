@@ -1,18 +1,13 @@
-import requests
-import keyboards.inline
-import datetime
-
 from keyboards.inline.city_button import city_markup
 from keyboards.inline.need_photo_inline import yes_or_no
 from loader import bot
 from states.states_info import FindInfoState
 from telebot.types import Message
 
-from keyboards.inline.calendar import CallbackData, Calendar
-from telebot.types import CallbackQuery
+from keyboards.inline.calendar import Calendar
 
 
-@bot.message_handler(commands=["lowprice", "highprice"], content_types=['text'])
+@bot.message_handler(commands=["lowprice", "highprice", "bestdeal"], content_types=['text'])
 def low_price(message: Message) -> None:
 
     bot.set_state(message.from_user.id, FindInfoState.city, message.chat.id)
