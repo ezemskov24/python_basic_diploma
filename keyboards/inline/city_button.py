@@ -1,12 +1,13 @@
-from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, List
-from config_data.config import RAPID_API_KEY
 import requests
+
+from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, List
+from config_data.config import RAPID_API_KEY, RAPID_API_HOST
 
 
 url = "https://hotels4.p.rapidapi.com/locations/v3/search"
 headers = {
 	"X-RapidAPI-Key": RAPID_API_KEY,
-	"X-RapidAPI-Host": "hotels4.p.rapidapi.com"
+	"X-RapidAPI-Host": RAPID_API_HOST
 }
 
 

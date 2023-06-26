@@ -1,10 +1,12 @@
 import datetime
+
 import handlers.custom_handlers.main_commands
 
 from loader import bot
 from states.states_info import FindInfoState
 from keyboards.inline.calendar import CallbackData, Calendar
 from telebot.types import CallbackQuery
+from handlers.custom_handlers.main_commands import distance_from, get_hotel_count
 
 
 calendar = Calendar()
@@ -42,8 +44,12 @@ def input_date(call: CallbackQuery) -> None:
 
                     data['checkOutDate'] = {'day': day, 'month': month, 'year': year}
                     bot.send_message(call.message.chat.id, f'Дата выезда: {day + "." + month + "." + year}')
-                    bot.set_state(call.message.chat.id, FindInfoState.hotel_count)
-                    handlers.custom_handlers.main_commands.get_hotel_count(call)
+                    if data["sort"] == "DISTANCE":
+                        bot.set_state(call.message.chat.id, FindInfoState.distance_from)
+                        distance_from(call)
+                    else:
+                        bot.set_state(call.message.chat.id, FindInfoState.hotel_count)
+                        get_hotel_count(call)
 
                 else:
                     bot.send_message(call.message.chat.id, 'Дата выезда не может быть раньше даты заезда! '
