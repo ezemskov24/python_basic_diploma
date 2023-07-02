@@ -5,7 +5,7 @@ from states.states_info import FindInfoState
 from keyboards.inline.city_button import city_markup
 from keyboards.inline.need_photo_inline import yes_or_no
 from keyboards.inline.calendar import Calendar
-from utils.api_requests import api_request_hotel_id
+from utils.api_requests import api_request_hotel_id, api_request_detail
 
 
 @bot.message_handler(commands=["lowprice", "highprice", "bestdeal"], content_types=['text'])
@@ -121,7 +121,10 @@ def how_many_photo(message: Message) -> None:
         with bot.retrieve_data(message.chat.id) as data:
             data["count_photo"] = message.text
         bot.send_message(message.from_user.id, "На этом пока все, но работа продолжается")
-        api_request_hotel_id(message, data)
+        api_request_hotel_id(data)
+
+        result = api_request_hotel_id(data)
+        api_request_detail(result, data, message)
 
     else:
         bot.send_message(message.from_user.id, "Вы ввели неверное значение")

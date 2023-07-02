@@ -1,3 +1,5 @@
+import json
+
 import requests
 
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, List
@@ -17,7 +19,7 @@ def city_founding(city: str) -> List:
 							"langid": "1033", "siteid": "300000001"}, timeout=10)
 
 	if response.status_code == requests.codes.ok:
-		data = response.json()
+		data = json.loads(response.text)
 		cities = list()
 		for i_data in data["sr"]:
 			if i_data["type"] == "CITY":
