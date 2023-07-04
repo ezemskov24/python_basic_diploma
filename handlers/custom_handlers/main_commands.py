@@ -18,13 +18,21 @@ def low_price(message: Message) -> None:
                                            "\nПоиск по городам России временно не производится.")
 
 
+def check_command(command: str) -> str:
+    if command == "/lowprice" or command == "/highprice":
+        return "PRICE_LOW_TO_HIGH"
+
+    elif command == "/bestdeal":
+        return "DISTANCE"
+
+
 @bot.message_handler(state=FindInfoState.city)
 def get_city(message: Message) -> None:
     if message.text.isalpha():
         with bot.retrieve_data(message.chat.id) as data:
             data["city"] = message.text
         bot.send_message(message.from_user.id, "Выберете один из предложенных вариантов",
-                         reply_markup=city_markup(message.text))
+                         reply_markup=city_markup(message.text, message))
 
     else:
         bot.send_message(message.from_user.id, "Что-то пошло не так, попробуйте ввести еще раз")
@@ -121,18 +129,10 @@ def how_many_photo(message: Message) -> None:
         with bot.retrieve_data(message.chat.id) as data:
             data["count_photo"] = message.text
         bot.send_message(message.from_user.id, "На этом пока все, но работа продолжается")
-        api_request_hotel_id(data)
+        api_request_hotel_id(data, message)
 
-        result = api_request_hotel_id(data)
-        api_request_detail(result, data, message)
+        result = api_request_hotel_id(data, message)
+        api_request_detail(result)
 
     else:
         bot.send_message(message.from_user.id, "Вы ввели неверное значение")
-
-
-def check_command(command: str) -> str:
-    if command == "/lowprice" or command == "/highprice":
-        return "PRICE_LOW_TO_HIGH"
-
-    elif command == "/bestdeal":
-        return "DISTANCE"
