@@ -16,7 +16,9 @@ def api_request_hotel_id(data: dict, message: Message) -> Dict:
 		"eapid": 1,
 		"locale": "en_US",
 		"siteId": 300000001,
-		"destination": { "regionId": data["destination_id"] },
+		"destination": {
+			"regionId": data["destination_id"]
+			},
 		"checkInDate": {
 			"day": int(data['checkInDate']['day']),
 			"month": int(data['checkInDate']['month']),
@@ -29,18 +31,15 @@ def api_request_hotel_id(data: dict, message: Message) -> Dict:
 		},
 		"rooms": [
 			{
-				"adults": 2,
-				"children": [{ "age": 5 }, { "age": 7 }]
+				"adults": 1,
 			}
 		],
 		"resultsStartingIndex": 0,
-		"resultsSize": 200,
+		"resultsSize": 10,
 		"sort": data["sort"],
-		"filters": { "price": {
-				"max": int(data["max_price"]),
-				"min": int(data["min_price"])
-			} }
+		"filters": {'availableFilter': 'SHOW_AVAILABLE_ONLY'}
 	}
+
 	headers = {
 		"content-type": "application/json",
 		"X-RapidAPI-Key": RAPID_API_KEY,
@@ -52,57 +51,83 @@ def api_request_hotel_id(data: dict, message: Message) -> Dict:
 	if response.status_code == requests.codes.ok:
 		data_hotel = json.loads(response.text)
 
-		try:
-			if data_hotel.get("data"):
+		hotel_info = dict()
 
-				hotel_info = dict()
+		try:
+
+			if "data" in data_hotel and isinstance(data_hotel["data"], dict):
+
 				for i_data in data_hotel["data"]["propertySearch"]["properties"]:
 					hotel_info[i_data["id"]] = {
 						"name": i_data["name"],
 						"price": round(i_data['price']['lead']['amount'], 2),
 						"distance": i_data["destinationInfo"]["distanceFromDestination"]["value"]
 						}
+
 				return hotel_info
 
 			else:
 				bot.send_message(message.chat.id, "Произошла ошибка, повторите выбор команды")
+				raise SystemExit
 
 		except KeyError:
-			print("Ошибка API запроса")
+			print("Ошибка запроса")
+
+	else:
+		print("Ошибка при выполнении запроса:", response.status_code)
 
 
-def api_request_detail(hotel_data: dict):
+def api_request_detail(hotel_data: dict, data: dict, message: Message):
 
-	print(hotel_data)
+	hotel_variants = int(data["hotel_variants"])
+	hotel_keys = list(hotel_data.keys())
 
-		# url_detail = "https://hotels4.p.rapidapi.com/properties/v2/detail"
-		#
-		# payload_detail = {
-		# 	"currency": "USD",
-		# 	"eapid": 1,
-		# 	"locale": "en_US",
-		# 	"siteId": 300000001,
-		# 	"propertyId": int(hotel_id)
-		# }
-		#
-		# headers = {
-		# 	"content-type": "application/json",
-		# 	"X-RapidAPI-Key": RAPID_API_KEY,
-		# 	"X-RapidAPI-Host": RAPID_API_HOST
-		# }
-		#
-		# response_detail = requests.post(url_detail, json=payload_detail, headers=headers, timeout=15)
-		#
-		# if response_detail.status_code == requests.codes.ok:
-		#
-		# 	data_detail = json.loads(response_detail.text)
-		#
-		# 	hotel_detail = dict()
-		#
-		# 	for hotel_info in data_detail["data"]["propertyInfo"]["summary"]:
-		# 		address_line = hotel_info["location"]["address"]["addressLine"]
-		# 		hotel_detail[hotel_info["id"]] = {
-		# 			"address": address_line
-		# 		}
-		# 	print(hotel_detail)
-		# 	return hotel_detail
+	if hotel_variants <= 0 or hotel_variants > len(hotel_data):
+		bot.send_message(message.chat.id, "Произошла ошибка, повторите команду с другими параметрами")
+
+	else:
+
+		random_keys = random.sample(hotel_keys, hotel_variants)
+		hotel_detail = dict()
+
+		for hotel_id in random_keys:
+
+			url_detail = "https://hotels4.p.rapidapi.com/properties/v2/detail"
+
+			payload_detail = {
+				"currency": "USD",
+				"eapid": 1,
+				"locale": "en_US",
+				"siteId": 300000001,
+				"propertyId": hotel_id
+			}
+
+			headers = {
+				"content-type": "application/json",
+				"X-RapidAPI-Key": RAPID_API_KEY,
+				"X-RapidAPI-Host": RAPID_API_HOST
+			}
+
+			response_detail = requests.post(url_detail, json=payload_detail, headers=headers, timeout=15)
+
+			if response_detail.status_code == requests.codes.ok:
+
+				data_detail = json.loads(response_detail.text)
+
+				summary = data_detail["data"]["propertyInfo"]["summary"]
+				address_line = summary["location"]["address"]["addressLine"]
+
+				image_urls = list()
+				for image_data in data_detail["data"]["propertyInfo"]["propertyGallery"]["images"]:
+					image_url = image_data["image"]["url"]
+					image_urls.append(image_url)
+
+				hotel_detail[summary["id"]] = {
+					"address": address_line,
+					"images": image_urls
+				}
+
+			else:
+				print("Ошибка при выполнении запроса:", response_detail.status_code)
+
+		return hotel_detail

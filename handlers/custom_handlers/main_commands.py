@@ -5,7 +5,7 @@ from states.states_info import FindInfoState
 from keyboards.inline.city_button import city_markup
 from keyboards.inline.need_photo_inline import yes_or_no
 from keyboards.inline.calendar import Calendar
-from utils.api_requests import api_request_hotel_id, api_request_detail
+from utils.send_message_with_variants import send_message
 
 
 @bot.message_handler(commands=["lowprice", "highprice", "bestdeal"], content_types=['text'])
@@ -14,8 +14,8 @@ def low_price(message: Message) -> None:
     with bot.retrieve_data(message.chat.id) as data:
         data["sort"] = check_command(message.text)
     bot.set_state(message.from_user.id, FindInfoState.city, message.chat.id)
-    bot.send_message(message.from_user.id, "Введите город, в котором будет производиться поиск."
-                                           "\nПоиск по городам России временно не производится.")
+    bot.send_message(message.from_user.id, "Введите город, в котором будет производиться поиск.\n"
+                                           "Поиск по городам России временно не производится.")
 
 
 def check_command(command: str) -> str:
@@ -124,15 +124,11 @@ def need_photo(message: Message) -> None:
 
 
 @bot.message_handler(state=FindInfoState.how_many_photo)
-def how_many_photo(message: Message) -> None:
+def how_many_photo(message: Message):
     if message.text.isdigit() and int(message.text) <= 10:
         with bot.retrieve_data(message.chat.id) as data:
             data["count_photo"] = message.text
-        bot.send_message(message.from_user.id, "На этом пока все, но работа продолжается")
-        api_request_hotel_id(data, message)
-
-        result = api_request_hotel_id(data, message)
-        api_request_detail(result)
+        send_message(data, message)
 
     else:
         bot.send_message(message.from_user.id, "Вы ввели неверное значение")
