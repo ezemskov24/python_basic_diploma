@@ -1,7 +1,7 @@
 from loader import bot
 from states.states_info import FindInfoState
-from telebot.types import CallbackQuery
-from utils.api_requests import api_request_hotel_id
+from telebot.types import CallbackQuery, Message
+from utils.send_message_with_variants import send_message
 
 
 @bot.callback_query_handler(func=lambda call: call.data.isalpha())
@@ -16,5 +16,15 @@ def photo_amount(call: CallbackQuery) -> None:
         with bot.retrieve_data(call.message.chat.id) as data:
             data["need_photo"] = call.data
             data["count_photo"] = 0
-        bot.send_message(call.message.chat.id, "На этом пока все, но работа продолжается")
-        api_request_hotel_id(data)
+        
+        text = "Вы выбрали:\n" \
+               f"Город: {data['city'].title()}\n" \
+               f"Минимальная цена за ночь: {data['min_price']}$\n" \
+               f"Максимальная цена за ночь: {data['max_price']}$\n" \
+               f"Дата заезда: " \
+               f"{data['checkInDate']['day']}.{data['checkInDate']['month']}.{data['checkInDate']['year']}\n" \
+               f"Дата выезда: " \
+               f"{data['checkOutDate']['day']}.{data['checkOutDate']['month']}.{data['checkOutDate']['year']}\n\n"
+        bot.send_message(call.from_user.id, text)
+
+        send_message(data, call.message)

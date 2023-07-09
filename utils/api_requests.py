@@ -37,7 +37,10 @@ def api_request_hotel_id(data: dict, message: Message) -> Dict:
 		"resultsStartingIndex": 0,
 		"resultsSize": 10,
 		"sort": data["sort"],
-		"filters": {'availableFilter': 'SHOW_AVAILABLE_ONLY'}
+		"filters": {"price": {
+			"max": data["max_price"],
+			"min": data["min_price"]
+		}}
 	}
 
 	headers = {
@@ -114,18 +117,22 @@ def api_request_detail(hotel_data: dict, data: dict, message: Message):
 
 				data_detail = json.loads(response_detail.text)
 
-				summary = data_detail["data"]["propertyInfo"]["summary"]
-				address_line = summary["location"]["address"]["addressLine"]
+				try:
+					summary = data_detail["data"]["propertyInfo"]["summary"]
+					address_line = summary["location"]["address"]["addressLine"]
 
-				image_urls = list()
-				for image_data in data_detail["data"]["propertyInfo"]["propertyGallery"]["images"]:
-					image_url = image_data["image"]["url"]
-					image_urls.append(image_url)
+					image_urls = list()
+					for image_data in data_detail["data"]["propertyInfo"]["propertyGallery"]["images"]:
+						image_url = image_data["image"]["url"]
+						image_urls.append(image_url)
 
-				hotel_detail[summary["id"]] = {
-					"address": address_line,
-					"images": image_urls
-				}
+					hotel_detail[summary["id"]] = {
+						"address": address_line,
+						"images": image_urls
+					}
+
+				except KeyError:
+					print("Ошибка запроса")
 
 			else:
 				print("Ошибка при выполнении запроса:", response_detail.status_code)

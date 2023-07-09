@@ -12,6 +12,7 @@ from utils.send_message_with_variants import send_message
 def low_price(message: Message) -> None:
     bot.set_state(message.from_user.id, FindInfoState.command, message.chat.id)
     with bot.retrieve_data(message.chat.id) as data:
+        data["command"] = message.text
         data["sort"] = check_command(message.text)
     bot.set_state(message.from_user.id, FindInfoState.city, message.chat.id)
     bot.send_message(message.from_user.id, "Введите город, в котором будет производиться поиск.\n"
@@ -128,6 +129,16 @@ def how_many_photo(message: Message):
     if message.text.isdigit() and int(message.text) <= 10:
         with bot.retrieve_data(message.chat.id) as data:
             data["count_photo"] = message.text
+
+        text = "Вы выбрали:\n" \
+               f"Город: {data['city'].title()}\n" \
+               f"Минимальная цена за ночь: {data['min_price']}$\n" \
+               f"Максимальная цена за ночь: {data['max_price']}$\n" \
+               f"Дата заезда: " \
+               f"{data['checkInDate']['day']}.{data['checkInDate']['month']}.{data['checkInDate']['year']}\n" \
+               f"Дата выезда: " \
+               f"{data['checkOutDate']['day']}.{data['checkOutDate']['month']}.{data['checkOutDate']['year']}\n\n"
+        bot.send_message(message.from_user.id, text)
         send_message(data, message)
 
     else:

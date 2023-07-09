@@ -15,8 +15,13 @@ def send_message(data: dict, message: Message):
     for key in result_detail:
         result_detail[key].update(result_id[key])
 
-    for hotel_key in result_detail:
-        hotel = result_detail[hotel_key]
+    if data["command"] == "/lowprice":
+        result_detail = sorted(result_detail.items(), key=lambda x: x[1]["price"])
+
+    elif data["command"] == "/highprice":
+        result_detail = sorted(result_detail.items(), key=lambda x: x[1]["price"], reverse=True)
+
+    for hotel_key, hotel in result_detail:
         images = random.sample(hotel["images"], int(data["count_photo"]))
 
         message_text = f"Название отеля: {hotel['name']}\n" \
@@ -32,5 +37,3 @@ def send_message(data: dict, message: Message):
                 image_data = BytesIO(response.content)
                 image_data.seek(0)
                 bot.send_photo(message.chat.id, photo=image_data)
-
-
