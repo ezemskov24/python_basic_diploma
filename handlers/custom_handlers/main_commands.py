@@ -1,3 +1,5 @@
+import re
+
 from telebot.types import Message
 
 from loader import bot
@@ -13,23 +15,16 @@ def low_price(message: Message) -> None:
     bot.set_state(message.from_user.id, FindInfoState.command, message.chat.id)
     with bot.retrieve_data(message.chat.id) as data:
         data["command"] = message.text
-        data["sort"] = check_command(message.text)
     bot.set_state(message.from_user.id, FindInfoState.city, message.chat.id)
-    bot.send_message(message.from_user.id, "Введите город, в котором будет производиться поиск.\n"
+    bot.send_message(message.from_user.id, f"Здравствуйте, {message.from_user.username}!\n"
+                                           "Введите город, в котором будет производиться поиск.\n"
                                            "Поиск по городам России временно не производится.")
-
-
-def check_command(command: str) -> str:
-    if command == "/lowprice" or command == "/highprice":
-        return "PRICE_LOW_TO_HIGH"
-
-    elif command == "/bestdeal":
-        return "DISTANCE"
 
 
 @bot.message_handler(state=FindInfoState.city)
 def get_city(message: Message) -> None:
-    if message.text.isalpha():
+    pattern = r'^[a-zA-Z\s\-]+$'
+    if re.match(pattern, message.text):
         with bot.retrieve_data(message.chat.id) as data:
             data["city"] = message.text
         bot.send_message(message.from_user.id, "Выберете один из предложенных вариантов",
@@ -125,7 +120,7 @@ def need_photo(message: Message) -> None:
 
 
 @bot.message_handler(state=FindInfoState.how_many_photo)
-def how_many_photo(message: Message):
+def how_many_photo(message: Message) -> None:
     if message.text.isdigit() and int(message.text) <= 10:
         with bot.retrieve_data(message.chat.id) as data:
             data["count_photo"] = message.text
@@ -137,7 +132,10 @@ def how_many_photo(message: Message):
                f"Дата заезда: " \
                f"{data['checkInDate']['day']}.{data['checkInDate']['month']}.{data['checkInDate']['year']}\n" \
                f"Дата выезда: " \
-               f"{data['checkOutDate']['day']}.{data['checkOutDate']['month']}.{data['checkOutDate']['year']}\n\n"
+               f"{data['checkOutDate']['day']}.{data['checkOutDate']['month']}.{data['checkOutDate']['year']}\n" \
+               f"Количество ночей: {data['count_days']}\n" \
+               f"Количество вариантов: {data['hotel_variants']}\n" \
+               f"Количество фотографий: {data['count_photo']}"
         bot.send_message(message.from_user.id, text)
         send_message(data, message)
 

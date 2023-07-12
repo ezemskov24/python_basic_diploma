@@ -21,13 +21,17 @@ def send_message(data: dict, message: Message):
     elif data["command"] == "/highprice":
         result_detail = sorted(result_detail.items(), key=lambda x: x[1]["price"], reverse=True)
 
+    elif data["command"] == "/bestdeal":
+        result_detail = sorted(result_detail.items(), key=lambda x: (x[1]["distance"], x[1]["price"]))
+
     for hotel_key, hotel in result_detail:
         images = random.sample(hotel["images"], int(data["count_photo"]))
 
         message_text = f"Название отеля: {hotel['name']}\n" \
                        f"Адрес: {hotel['address']}\n" \
-                       f"Расстояние от центра: {hotel['distance']} миль\n" \
-                       f"Сумма проживания: {hotel['price']} $\n"
+                       f"Расстояние до центра: {hotel['distance']} миль\n" \
+                       f"Цена за ночь: {hotel['price']} $\n" \
+                       f"Сумма проживания: {float(hotel['price']) * int(data['count_days'])} $\n"
 
         bot.send_message(message.chat.id, message_text)
 

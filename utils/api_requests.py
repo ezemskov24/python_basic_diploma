@@ -1,6 +1,7 @@
 import requests
 import json
 import random
+from loguru import logger
 
 from config_data.config import RAPID_API_KEY, RAPID_API_HOST
 from loader import bot
@@ -31,15 +32,15 @@ def api_request_hotel_id(data: dict, message: Message) -> Dict:
 		},
 		"rooms": [
 			{
-				"adults": 1,
+				"adults": 2,
 			}
 		],
 		"resultsStartingIndex": 0,
-		"resultsSize": 10,
-		"sort": data["sort"],
+		"resultsSize": 200,
+		"sort": "PRICE_LOW_TO_HIGH",
 		"filters": {"price": {
-			"max": data["max_price"],
-			"min": data["min_price"]
+			"max": int(data["max_price"]),
+			"min": int(data["min_price"])
 		}}
 	}
 
@@ -52,29 +53,40 @@ def api_request_hotel_id(data: dict, message: Message) -> Dict:
 	response = requests.post(url, json=payload, headers=headers, timeout=15)
 
 	if response.status_code == requests.codes.ok:
+		logger.info(f"Ответ сервера: {response.status_code}")
 		data_hotel = json.loads(response.text)
+		logger.info(f"Ключи в словаре: {data_hotel.keys()}")
 
 		hotel_info = dict()
 
-		try:
+		if "data" in data_hotel and isinstance(data_hotel["data"], dict):
 
-			if "data" in data_hotel and isinstance(data_hotel["data"], dict):
+			for i_data in data_hotel["data"]["propertySearch"]["properties"]:
+				hotel_info[i_data["id"]] = {
+					"name": i_data["name"],
+					"price": round(i_data['price']['lead']['amount'], 2),
+					"distance": i_data["destinationInfo"]["distanceFromDestination"]["value"]
+					}
 
-				for i_data in data_hotel["data"]["propertySearch"]["properties"]:
-					hotel_info[i_data["id"]] = {
-						"name": i_data["name"],
-						"price": round(i_data['price']['lead']['amount'], 2),
-						"distance": i_data["destinationInfo"]["distanceFromDestination"]["value"]
-						}
+			if data["command"] == "/bestdeal":
 
-				return hotel_info
+				distance_from = int(data["distance_from"])
+				distance_to = int(data["distance_to"])
+				hotels_for_del = list()
 
-			else:
-				bot.send_message(message.chat.id, "Произошла ошибка, повторите выбор команды")
-				raise SystemExit
+				for hotel_id, hotel_data in hotel_info.items():
+					distance = hotel_data["distance"]
+					if not (distance_from < float(distance) < distance_to):
+						hotels_for_del.append(hotel_id)
 
-		except KeyError:
-			print("Ошибка запроса")
+				for hotel_id in hotels_for_del:
+					del hotel_info[hotel_id]
+
+			return hotel_info
+
+		else:
+			bot.send_message(message.chat.id, "Произошла ошибка, повторите выбор команды")
+			raise SystemExit
 
 	else:
 		print("Ошибка при выполнении запроса:", response.status_code)
@@ -84,9 +96,12 @@ def api_request_detail(hotel_data: dict, data: dict, message: Message):
 
 	hotel_variants = int(data["hotel_variants"])
 	hotel_keys = list(hotel_data.keys())
+	logger.info(f"Ключей в словаре: {len(hotel_data.keys())}")
 
 	if hotel_variants <= 0 or hotel_variants > len(hotel_data):
-		bot.send_message(message.chat.id, "Произошла ошибка, повторите команду с другими параметрами")
+		bot.send_message(message.chat.id, "Не удалось найти варианты с заданными параметрами.\n"
+										  "Повторите команду с другими значениями")
+		raise SystemExit
 
 	else:
 
@@ -114,6 +129,7 @@ def api_request_detail(hotel_data: dict, data: dict, message: Message):
 			response_detail = requests.post(url_detail, json=payload_detail, headers=headers, timeout=15)
 
 			if response_detail.status_code == requests.codes.ok:
+				logger.info(f"Ответ сервера: {response_detail.status_code}")
 
 				data_detail = json.loads(response_detail.text)
 

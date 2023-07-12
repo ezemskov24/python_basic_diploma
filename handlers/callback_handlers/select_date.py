@@ -40,11 +40,12 @@ def input_date(call: CallbackQuery) -> None:
         with bot.retrieve_data(call.message.chat.id) as data:
             if 'checkInDate' in data:
                 checkin = int(data['checkInDate']['year'] + data['checkInDate']['month'] + data['checkInDate']['day'])
+                data["count_days"] = int(select_date) - int(checkin)
                 if int(select_date) > checkin:
 
                     data['checkOutDate'] = {'day': day, 'month': month, 'year': year}
                     bot.send_message(call.message.chat.id, f'Дата выезда: {day + "." + month + "." + year}')
-                    if data["sort"] == "DISTANCE":
+                    if data["command"] == "/bestdeal":
                         bot.set_state(call.message.chat.id, FindInfoState.distance_from)
                         distance_from(call)
                     else:

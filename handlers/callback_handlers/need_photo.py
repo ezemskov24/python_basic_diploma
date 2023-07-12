@@ -16,7 +16,7 @@ def photo_amount(call: CallbackQuery) -> None:
         with bot.retrieve_data(call.message.chat.id) as data:
             data["need_photo"] = call.data
             data["count_photo"] = 0
-        
+
         text = "Вы выбрали:\n" \
                f"Город: {data['city'].title()}\n" \
                f"Минимальная цена за ночь: {data['min_price']}$\n" \
@@ -24,7 +24,10 @@ def photo_amount(call: CallbackQuery) -> None:
                f"Дата заезда: " \
                f"{data['checkInDate']['day']}.{data['checkInDate']['month']}.{data['checkInDate']['year']}\n" \
                f"Дата выезда: " \
-               f"{data['checkOutDate']['day']}.{data['checkOutDate']['month']}.{data['checkOutDate']['year']}\n\n"
+               f"{data['checkOutDate']['day']}.{data['checkOutDate']['month']}.{data['checkOutDate']['year']}\n" \
+               f"Количество ночей: {data['count_days']}\n" \
+               f"Количество вариантов: {data['hotel_variants']}\n" \
+               f"Количество фотографий: {data['count_photo']}"
         bot.send_message(call.from_user.id, text)
 
         send_message(data, call.message)
