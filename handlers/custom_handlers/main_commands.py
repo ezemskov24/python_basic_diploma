@@ -10,8 +10,9 @@ from keyboards.inline.calendar import Calendar
 from utils.send_message_with_variants import send_message
 
 
+
 @bot.message_handler(commands=["lowprice", "highprice", "bestdeal"], content_types=['text'])
-def low_price(message: Message) -> None:
+def start_command(message: Message) -> None:
     bot.set_state(message.from_user.id, FindInfoState.command, message.chat.id)
     with bot.retrieve_data(message.chat.id) as data:
         data["command"] = message.text
@@ -124,6 +125,21 @@ def how_many_photo(message: Message) -> None:
     if message.text.isdigit() and int(message.text) <= 10:
         with bot.retrieve_data(message.chat.id) as data:
             data["count_photo"] = message.text
+
+            History(
+                user_id=message.from_user.id,
+                command=data["command"],
+                city=data["city"],
+                min_price=data["min_price"],
+                max_price=data["max_price"],
+                check_in_date=data['checkInDate'],
+                check_out_date=data['checkOutDate'],
+                distance_from=data["distance_from"],
+                distance_to=data["distance_to"],
+                hotel_variants=data["hotel_variants"],
+                need_photo=data["need_photo"],
+                count_photo=data["count_photo"]
+            )
 
         text = "Вы выбрали:\n" \
                f"Город: {data['city'].title()}\n" \
