@@ -10,16 +10,21 @@ from keyboards.inline.calendar import Calendar
 from utils.send_message_with_variants import send_message
 
 
-
 @bot.message_handler(commands=["lowprice", "highprice", "bestdeal"], content_types=['text'])
 def start_command(message: Message) -> None:
     bot.set_state(message.from_user.id, FindInfoState.command, message.chat.id)
     with bot.retrieve_data(message.chat.id) as data:
         data["command"] = message.text
+
     bot.set_state(message.from_user.id, FindInfoState.city, message.chat.id)
-    bot.send_message(message.from_user.id, f"Здравствуйте, {message.from_user.username}!\n"
-                                           "Введите город, в котором будет производиться поиск.\n"
-                                           "Поиск по городам России временно не производится.")
+    if message.from_user.username is not None:
+        bot.send_message(message.from_user.id, f"Здравствуйте, {message.from_user.username}!\n"
+                                               "Введите город, в котором будет производиться поиск.\n"
+                                               "Поиск по городам России временно не производится.")
+    else:
+        bot.send_message(message.from_user.id, f"Здравствуйте!\n"
+                                               "Введите город, в котором будет производиться поиск.\n"
+                                               "Поиск по городам России временно не производится.")
 
 
 @bot.message_handler(state=FindInfoState.city)
@@ -126,21 +131,6 @@ def how_many_photo(message: Message) -> None:
         with bot.retrieve_data(message.chat.id) as data:
             data["count_photo"] = message.text
 
-            History(
-                user_id=message.from_user.id,
-                command=data["command"],
-                city=data["city"],
-                min_price=data["min_price"],
-                max_price=data["max_price"],
-                check_in_date=data['checkInDate'],
-                check_out_date=data['checkOutDate'],
-                distance_from=data["distance_from"],
-                distance_to=data["distance_to"],
-                hotel_variants=data["hotel_variants"],
-                need_photo=data["need_photo"],
-                count_photo=data["count_photo"]
-            )
-
         text = "Вы выбрали:\n" \
                f"Город: {data['city'].title()}\n" \
                f"Минимальная цена за ночь: {data['min_price']}$\n" \
@@ -152,6 +142,7 @@ def how_many_photo(message: Message) -> None:
                f"Количество ночей: {data['count_days']}\n" \
                f"Количество вариантов: {data['hotel_variants']}\n" \
                f"Количество фотографий: {data['count_photo']}"
+
         bot.send_message(message.from_user.id, text)
         send_message(data, message)
 

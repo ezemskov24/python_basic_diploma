@@ -49,6 +49,8 @@ def input_date(call: CallbackQuery) -> None:
                         bot.set_state(call.message.chat.id, FindInfoState.distance_from)
                         distance_from(call)
                     else:
+                        data["distance_from"] = " "
+                        data["distance_to"] = " "
                         bot.set_state(call.message.chat.id, FindInfoState.hotel_count)
                         get_hotel_count(call)
 

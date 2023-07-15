@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from peewee import *
 
 
@@ -12,18 +10,21 @@ class BaseModel(Model):
 
 
 class History(BaseModel):
-    user_id = IntegerField(primary_key=True)
+    user_id = CharField()
+    date_time = CharField()
+    user_name = CharField(null=True)
     command = CharField()
     city = CharField()
     min_price = IntegerField()
     max_price = IntegerField()
-    check_in_date = TextField()
-    check_out_date = TextField()
-    distance_from = IntegerField()
-    distance_to = IntegerField()
+    check_in_date = CharField()
+    check_out_date = CharField()
+    distance_from = CharField()
+    distance_to = CharField()
     hotel_variants = IntegerField()
-    need_photo = TextField()
-    count_photo = TextField()
+    need_photo = CharField()
+    count_photo = CharField()
+    hotel_names = TextField()
 
 
 if __name__ == "__main__":

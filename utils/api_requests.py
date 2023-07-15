@@ -95,7 +95,7 @@ def api_request_hotel_id(data: dict, message: Message, attempts=3) -> Dict:
         raise SystemExit
 
 
-def api_request_detail(hotel_data: dict, data: dict, message: Message):
+def api_request_detail(hotel_data: dict, data: dict, message: Message) -> Dict:
     hotel_variants = int(data["hotel_variants"])
     hotel_keys = list(hotel_data.keys())
     logger.info(f"Ключей в словаре: {len(hotel_data.keys())}")
