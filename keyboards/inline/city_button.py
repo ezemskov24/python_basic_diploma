@@ -15,6 +15,16 @@ headers = {
 
 
 def city_founding(city: str) -> List:
+
+	"""
+	Выполняет поиск города по его названию.
+
+	:param city: Название города для поиска.
+	:type city: Str
+	:return: Список словарей с информацией о найденных городах.
+	:rtype: List
+	"""
+
 	response = requests.get(url, headers=headers,
 							params={'q': city, 'locale': 'en_EN',
 							"langid": "1033", "siteid": "300000001"}, timeout=10)
@@ -33,6 +43,20 @@ def city_founding(city: str) -> List:
 
 
 def city_markup(text: str, message: Message) -> InlineKeyboardMarkup:
+
+	"""
+	Создает встроенную клавиатуру с найденными городами.
+	Проверяет, есть ли в списке значения.
+	В случае, если список пуст, просит ввести другой город.
+
+	:param text: Название города для поиска.
+	:type text: Str
+	:param message: Объект сообщения от пользователя.
+	:type message: Message
+	:return: Встроенная клавиатура с найденными городами.
+	:rtype: InlineKeyboardMarkup
+	"""
+
 	cities_list = city_founding(text)
 	destinations = InlineKeyboardMarkup()
 

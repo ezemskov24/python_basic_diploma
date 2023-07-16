@@ -6,6 +6,15 @@ from handlers.custom_handlers.main_commands import min_price
 
 @bot.callback_query_handler(func=lambda call: call.data.isdigit())
 def hotel_id(call: CallbackQuery) -> None:
+
+    """
+    Обработчик выбора id отеля из встроенной клавиатуры.
+
+    :param call: Объект CallbackQuery, представляющий событие нажатия на кнопку.
+    :type call: CallbackQuery
+    :return: None
+    """
+
     if call.data:
         bot.set_state(call.message.chat.id, FindInfoState.destinationId)
         with bot.retrieve_data(call.message.chat.id) as data:

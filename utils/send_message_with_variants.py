@@ -8,11 +8,19 @@ from utils.api_requests import api_request_hotel_id, api_request_detail
 from database.models import *
 
 
-def send_message(data: dict, message: Message):
+def send_message(data: dict, message: Message) -> None:
+
+    """
+    Отправляет сообщение с информацией о выбранных отелях и сохраняет историю поиска в базу данных.
+
+    :param data: Словарь с данными для запроса.
+    :type data: Dict
+    :param message: Объект сообщения от пользователя.
+    :type message: Message
+    """
+
     result_id = api_request_hotel_id(data, message)
     result_detail = api_request_detail(result_id, data, message)
-
-
 
     for key in result_detail:
         result_detail[key].update(result_id[key])

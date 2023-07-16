@@ -51,9 +51,6 @@ RUSSIAN_LANGUAGE = Language(
 
 
 class Calendar:
-    """
-    Calendar data factory
-    """
 
     __lang: Language
 
@@ -66,12 +63,13 @@ class Calendar:
         year: int = None,
         month: int = None,
     ) -> InlineKeyboardMarkup:
+
         """
-        Create a built in inline keyboard with calendar
+        Создает встроенную клавиатуру с календарем
         :param name:
-        :param year: Year to use in the calendar if you are not using the current year.
-        :param month: Month to use in the calendar if you are not using the current month.
-        :return: Returns an InlineKeyboardMarkup object with a calendar.
+        :param year: Год для использования в календаре, если не используется текущий.
+        :param month: Месяц для использования в календаре, если не используется текущий.
+        :return: Возвращает объект InlineKeyboardMarkup с календарем.
         """
 
         now_day = datetime.datetime.now()
@@ -145,7 +143,8 @@ class Calendar:
         self, name: str = "calendar", year: int = None
     ) -> InlineKeyboardMarkup:
         """
-        Creates a calendar with month selection
+        Создает календарь с выбором месяца
+
         :param name:
         :param year:
         :return:
@@ -187,16 +186,16 @@ class Calendar:
         day: int,
     ) -> None or datetime.datetime:
         """
-        The method creates a new calendar if the forward or backward button is pressed
-        This method should be called inside CallbackQueryHandler.
-        :param bot: The object of the bot CallbackQueryHandler
-        :param call: CallbackQueryHandler data
+        Метод создает новый календарь, если нажата кнопка «вперед» или «назад».
+
+        :param bot: Объект бота CallbackQueryHandler
+        :param call: Данные CallbackQueryHandler
         :param day:
         :param month:
         :param year:
         :param action:
         :param name:
-        :return: Returns a tuple
+        :return: Возвращает кортеж
         """
 
         current = datetime.datetime(int(year), int(month), 1)
@@ -259,9 +258,6 @@ class Calendar:
 
 
 class CallbackData:
-    """
-    Callback data factory
-    """
 
     def __init__(self, prefix, *parts, sep=":"):
         if not isinstance(prefix, str):
@@ -282,7 +278,7 @@ class CallbackData:
 
     def new(self, *args, **kwargs) -> str:
         """
-        Generate callback data
+        Генерация данных обратного вызова
         :param args:
         :param kwargs:
         :return:
@@ -323,7 +319,7 @@ class CallbackData:
 
     def parse(self, callback_data: str) -> typing.Dict[str, str]:
         """
-        Parse data from the callback data
+        Разбор данных из обратного вызова
         :param callback_data:
         :return:
         """
@@ -342,7 +338,7 @@ class CallbackData:
 
     def filter(self, **config):
         """
-        Generate filter
+        Создание фильтра
         :param config:
         :return:
         """

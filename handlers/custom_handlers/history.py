@@ -1,11 +1,22 @@
 import ast
 
+from telebot.types import Message
 from loader import bot
 from database.models import *
 
 
 @bot.message_handler(commands=["history"], content_types=['text'])
-def send_data_from_database(message):
+def send_data_from_database(message: Message) -> None:
+
+    """
+    Отправляет пользователю данные из базы данных по истории поиска.
+    В случае отсутствия id пользователя в БД, предупреждает, что него еще нет истории поиска.
+
+    :param message: Объект сообщения от пользователя.
+    :type message: Message
+    :return: None
+    """
+
     user_id = message.from_user.id
 
     with db:

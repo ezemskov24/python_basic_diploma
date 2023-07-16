@@ -9,6 +9,20 @@ from telebot.types import Message, Dict
 
 
 def api_request_hotel_id(data: dict, message: Message, attempts=3) -> Dict:
+
+    """
+    Выполняет запрос к API для получения информации о доступных отелях.
+
+    :param data: Словарь с данными для запроса.
+    :type data: Dict
+    :param message: Объект сообщения от пользователя.
+    :type message: Message
+    :param attempts: Количество попыток выполнения запроса (по умолчанию 3).
+    :type attempts: Int
+    :return: Словарь с информацией о доступных отелях.
+    :rtype: Dict
+    """
+
     if attempts <= 0:
         bot.send_message(message.chat.id, "Произошла ошибка, повторите выбор команды")
         raise SystemExit
@@ -96,6 +110,20 @@ def api_request_hotel_id(data: dict, message: Message, attempts=3) -> Dict:
 
 
 def api_request_detail(hotel_data: dict, data: dict, message: Message) -> Dict:
+
+    """
+    Выполняет запрос к API для получения детальной информации о выбранных отелях.
+
+    :param hotel_data: Словарь с информацией о доступных отелях.
+    :type hotel_data: Dict
+    :param data: Словарь с данными для запроса.
+    :type data: Dict
+    :param message: Объект сообщения от пользователя.
+    :type message: Message
+    :return: Словарь с детальной информацией о выбранных отелях.
+    :rtype: Dict
+    """
+
     hotel_variants = int(data["hotel_variants"])
     hotel_keys = list(hotel_data.keys())
     logger.info(f"Ключей в словаре: {len(hotel_data.keys())}")

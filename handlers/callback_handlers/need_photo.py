@@ -6,6 +6,16 @@ from utils.send_message_with_variants import send_message
 
 @bot.callback_query_handler(func=lambda call: call.data.isalpha())
 def photo_amount(call: CallbackQuery) -> None:
+
+    """
+    Обработчик выбора количества фотографий для показа.
+    При выборе варианта "Нет", отправляет сообщение пользователю с тем, какие варианты он ранее указал.
+
+    :param call: Объект CallbackQuery, представляющий событие нажатия на кнопку.
+    :type call: CallbackQuery
+    :return: None
+    """
+
     if call.data == "yes":
         with bot.retrieve_data(call.message.chat.id) as data:
             data["need_photo"] = call.data

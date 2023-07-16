@@ -15,6 +15,15 @@ calendar_callback = CallbackData("calendar", "action", "year", "month", "day")
 
 def check_month_day(number: str) -> str:
 
+    """
+    Проверяет и форматирует числовое значение месяца или дня.
+
+    :param number: Числовое значение месяца или дня.
+    :type number: Str
+    :return: Отформатированное числовое значение месяца или дня.
+    :rtype: Str
+    """
+
     numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9]
     if int(number) in numbers:
         number = '0' + number
@@ -23,6 +32,16 @@ def check_month_day(number: str) -> str:
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith(calendar_callback.prefix))
 def input_date(call: CallbackQuery) -> None:
+
+    """
+    Обработчик выбора даты из календаря.
+    Проверка на то, чтобы дата заезда не была раньше текущего дня.
+    И дата выезда не была раньше даты заезда
+
+    :param call: Объект CallbackQuery, представляющий событие нажатия на кнопку.
+    :type call: CallbackQuery
+    :return: None
+    """
 
     name, action, year, month, day = call.data.split(calendar_callback.sep)
     calendar.calendar_query_handler(
@@ -39,6 +58,7 @@ def input_date(call: CallbackQuery) -> None:
         bot.set_state(call.message.chat.id, FindInfoState.input_date)
         with bot.retrieve_data(call.message.chat.id) as data:
             if 'checkInDate' in data:
+
                 checkin = int(data['checkInDate']['year'] + data['checkInDate']['month'] + data['checkInDate']['day'])
                 data["count_days"] = int(select_date) - int(checkin)
                 if int(select_date) > checkin:

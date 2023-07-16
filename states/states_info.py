@@ -2,6 +2,11 @@ from telebot.handler_backends import State, StatesGroup
 
 
 class FindInfoState(StatesGroup):
+
+    """
+    Состояния пользователя внутри сценария.
+    """
+
     command = State()
     city = State()
     destinationId = State()
