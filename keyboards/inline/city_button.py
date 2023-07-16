@@ -1,6 +1,7 @@
 import json
-
 import requests
+from requests import Timeout
+from loguru import logger
 
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, List, Message
 from config_data.config import RAPID_API_KEY, RAPID_API_HOST
@@ -25,21 +26,25 @@ def city_founding(city: str) -> List:
 	:rtype: List
 	"""
 
-	response = requests.get(url, headers=headers,
-							params={'q': city, 'locale': 'en_EN',
-							"langid": "1033", "siteid": "300000001"}, timeout=10)
+	try:
+		response = requests.get(url, headers=headers,
+								params={'q': city, 'locale': 'en_EN',
+								"langid": "1033", "siteid": "300000001"}, timeout=10)
 
-	if response.status_code == requests.codes.ok:
-		data = json.loads(response.text)
-		cities = list()
-		for i_data in data["sr"]:
-			if i_data["type"] == "CITY":
-				cities.append(dict(id=i_data["gaiaId"], region_name=i_data["regionNames"]["fullName"]))
+		if response.status_code == requests.codes.ok:
+			data = json.loads(response.text)
+			cities = list()
+			for i_data in data["sr"]:
+				if i_data["type"] == "CITY":
+					cities.append(dict(id=i_data["gaiaId"], region_name=i_data["regionNames"]["fullName"]))
 
-			return cities
+				return cities
 
-	else:
-		print("Ошибка при выполнении запроса:", response.status_code)
+		else:
+			print("Ошибка при выполнении запроса:", response.status_code)
+
+	except Timeout:
+		logger.info("Превышено время ожидания запроса")
 
 
 def city_markup(text: str, message: Message) -> InlineKeyboardMarkup:

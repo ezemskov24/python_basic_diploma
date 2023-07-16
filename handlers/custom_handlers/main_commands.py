@@ -8,9 +8,10 @@ from keyboards.inline.city_button import city_markup
 from keyboards.inline.need_photo_inline import yes_or_no
 from keyboards.inline.calendar import Calendar
 from utils.send_message_with_variants import send_message
+from handlers.custom_handlers.history import send_data_from_database
 
 
-@bot.message_handler(commands=["lowprice", "highprice", "bestdeal"], content_types=['text'])
+@bot.message_handler(commands=["lowprice", "highprice", "bestdeal", "history"], content_types=['text'])
 def start_command(message: Message) -> None:
 
     """
@@ -27,15 +28,19 @@ def start_command(message: Message) -> None:
         data.clear()
         data["command"] = message.text
 
-    bot.set_state(message.from_user.id, FindInfoState.city, message.chat.id)
-    if message.from_user.username is not None:
-        bot.send_message(message.from_user.id, f"Здравствуйте, {message.from_user.username}!\n"
-                                               "Введите город, в котором будет производиться поиск.\n"
-                                               "Поиск по городам России временно не производится.")
+    if data["command"] == "/history":
+        send_data_from_database(message)
+
     else:
-        bot.send_message(message.from_user.id, f"Здравствуйте!\n"
-                                               "Введите город, в котором будет производиться поиск.\n"
-                                               "Поиск по городам России временно не производится.")
+        bot.set_state(message.from_user.id, FindInfoState.city, message.chat.id)
+        if message.from_user.username is not None:
+            bot.send_message(message.from_user.id, f"Здравствуйте, {message.from_user.username}!\n"
+                                                   "Введите город, в котором будет производиться поиск.\n"
+                                                   "Поиск по городам России временно не производится.")
+        else:
+            bot.send_message(message.from_user.id, f"Здравствуйте!\n"
+                                                   "Введите город, в котором будет производиться поиск.\n"
+                                                   "Поиск по городам России временно не производится.")
 
 
 @bot.message_handler(state=FindInfoState.city)

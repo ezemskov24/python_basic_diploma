@@ -1,11 +1,11 @@
 import ast
 
+from states.states_info import FindInfoState
 from telebot.types import Message
 from loader import bot
 from database.models import *
 
 
-@bot.message_handler(commands=["history"], content_types=['text'])
 def send_data_from_database(message: Message) -> None:
 
     """
@@ -16,6 +16,8 @@ def send_data_from_database(message: Message) -> None:
     :type message: Message
     :return: None
     """
+
+    bot.set_state(message.from_user.id, FindInfoState.history, message.chat.id)
 
     user_id = message.from_user.id
 
@@ -38,7 +40,3 @@ def send_data_from_database(message: Message) -> None:
 
         else:
             bot.send_message(message.chat.id, "У вас нет истории поиска")
-
-
-if __name__ == '__main__':
-    send_data_from_database()

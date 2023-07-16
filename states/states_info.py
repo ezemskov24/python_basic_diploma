@@ -19,4 +19,4 @@ class FindInfoState(StatesGroup):
     hotel_count = State()
     need_photo = State()
     how_many_photo = State()
-
+    history = State()

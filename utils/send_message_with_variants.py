@@ -46,7 +46,7 @@ def send_message(data: dict, message: Message) -> None:
                            f"Адрес: {hotel['address']}\n" \
                            f"Расстояние до центра: {hotel['distance']} миль\n" \
                            f"Цена за ночь: {hotel['price']} $\n" \
-                           f"Сумма проживания: {float(hotel['price']) * int(data['count_days'])} $\n"
+                           f"Сумма проживания: {round(float(hotel['price']) * int(data['count_days']), 2)} $\n"
 
             bot.send_message(message.chat.id, message_text)
 
